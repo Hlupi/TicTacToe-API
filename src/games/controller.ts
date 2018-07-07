@@ -1,4 +1,4 @@
-import { JsonController, Get, Post, HttpCode, Body } from 'routing-controllers'
+import { JsonController, Get, Post, HttpCode, Body, Put, Param, NotFoundError } from 'routing-controllers'
 import Game from './entity'
 
 const colors = ['red', 'blue', 'green', 'yellow', 'magenta']
@@ -19,6 +19,16 @@ export default class GameController {
   ) {
     game.color = colors[Math.floor(Math.random() * colors.length)]
     return game.save()
+  }
+
+  @Put('/games/:id')
+  async updateGame(
+    @Param('id') id: number,
+    @Body() update: Partial<Game>
+  ) {
+    const game = await Game.findOne(id)
+    if(!game) throw new NotFoundError('Cannot find game')
+    return Game.merge(game, update).save()
   }
 
   
