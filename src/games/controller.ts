@@ -12,6 +12,7 @@ const moves = (board1, board2) =>
 
 @JsonController()
 export default class GameController {
+  
   @Get('/games')
   async allGames() {
     const games = await Game.find()
