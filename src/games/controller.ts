@@ -3,6 +3,12 @@ import Game from './entity'
 
 const colors = ['red', 'blue', 'green', 'yellow', 'magenta']
 
+const moves = (board1, board2) => 
+  board1
+    .map((row, y) => row.filter((cell, x) => board2[y][x] !== cell))
+    .reduce((a, b) => a.concat(b))
+    .length
+
 
 @JsonController()
 export default class GameController {
@@ -27,11 +33,13 @@ export default class GameController {
     @Body() update: Partial<Game>
   ) {
     const game = await Game.findOne(id)
+
     if(!game) throw new NotFoundError('Cannot find game')
+
     if(update.color && colors.indexOf(update.color) < 0) throw new BadRequestError('Wrong color')
+
+    if(update.board && moves(game.board, update.board) > 1) throw new BadRequestError('Only 1 move per turn is allowed')
+
     return Game.merge(game, update).save()
   }
-
-  
 }
-// When a **game is changed** using the endpoint you made in #4 and the color field is updated, make sure (validate) that the color is one of these colors: red, blue, green, yellow, magenta
